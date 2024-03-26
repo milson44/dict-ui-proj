@@ -1,0 +1,22 @@
+@import './styles/content-table.scss';
+@import './styles/icon.scss';
+
+.report-registry {
+  position: relative;
+  &__table {
+    flex-basis: 100%;
+    flex-shrink: 2;
+    flex-grow: 2;
+  }
+  &__layout {
+    display: flex;
+    align-items: flex-start;
+    padding: 0 24px;
+  }
+  &__link {
+    color: #208cff;
+  }
+  &__paginator {
+    padding: 10px 0;
+  }
+}

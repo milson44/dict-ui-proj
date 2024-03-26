@@ -1,0 +1,17 @@
+@import '../styles/vars.scss';
+.icon {
+  display: inline-block;
+  background-position: 50% 50%;
+  background-repeat: no-repeat;
+  background-size: contain;
+  vertical-align: middle;
+  &--arrow {
+    &-up {
+      background-image: $i-arrow-up;
+    }
+
+    &-down {
+      background-image: $i-arrow-down;
+    }
+  }
+}

@@ -1,0 +1,33 @@
+.th-sort {
+  &__content {
+    display: flex;
+    align-items: center;
+    &._sortable {
+      cursor: pointer;
+    }
+  }
+  &__title {
+    white-space: pre-line; //для двустрочных заголовков таблицы
+    word-break: break-word;
+
+  }
+
+  &__icons {
+    position: relative;
+    width: 8px;
+    height: 22px;
+    margin-left: 5px;
+    .icon {
+      position: absolute;
+      width: 8px;
+      height: 6px;
+
+      &--arrow-up {
+        top: 4px;
+      }
+      &--arrow-down {
+        bottom: 4px;
+      }
+    }
+  }
+}

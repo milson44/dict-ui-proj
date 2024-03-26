@@ -1,0 +1,168 @@
+<div class="report-registry">
+  <div class="data-loader-wr absolute" *ngIf="loader">
+    <div class="data-loader"></div>
+  </div>
+
+  <div class="report-registry__layout" [style.height]="height + 'px'">
+    <div class="report-registry__table">
+      <ng-scrollbar
+        track="all"
+        *ngIf="tableData.length || loader; else empty"
+        [style.max-height]="height - (pagination === paginationTypes.PAGINATION ? 44 : 0) + 'px'"
+        [style.min-height]="height - (pagination === paginationTypes.PAGINATION ? 44 : 0) + 'px'"
+        (reachedScrollEnd)="onScroll()"
+      >
+        <ng-template *ngTemplateOutlet="table"></ng-template>
+      </ng-scrollbar>
+      @if (pagination === paginationTypes.PAGINATION && totalPages > 1) {
+      <div class="report-registry__paginator">
+        <dict-paginator
+          [totalPages]="totalPages"
+          [currentPage]="page + 1"
+          [maxSize]="9"
+          (pageClick)="goToPage($event)"
+        ></dict-paginator>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+<ng-template #empty>
+  <div class="report-registry">
+    <div class="report-tab__empty">Ничего не найдено</div>
+  </div>
+</ng-template>
+
+<ng-template #noData>-</ng-template>
+<ng-template #tableRow let-dict>
+  <tr (click)="editData(dict)">
+    @for (field of filteredColumns | keyvalue : originalOrder; track field.key) { @switch (field.value.type) { @case
+    ('DATE') {<ng-container [ngTemplateOutlet]="date"> </ng-container
+    >} @case ('ATTACHMENT') {<ng-container [ngTemplateOutlet]="attachment"> </ng-container
+    >} @case ('BOOLEAN') {
+    <ng-container [ngTemplateOutlet]="boolean"> </ng-container>
+    } @case ('updated') {
+    <ng-container [ngTemplateOutlet]="updated"> </ng-container>
+    } @default {
+    <ng-container [ngTemplateOutlet]="defaultField"></ng-container
+    >} }
+    <ng-template #date>
+      <td class="report-registry__td report-registry__td--width180">
+        <ng-container *ngIf="dict.data.hasOwnProperty(field.key); else noData">
+          <div *ngFor="let element of dict.data[field.key] | multivalued">
+            <strong>{{ element.index }}</strong>
+            {{ element.value ? (element.value | date : 'dd.MM.yyyy') : '-' }}
+          </div>
+        </ng-container>
+      </td>
+    </ng-template>
+    <ng-template #attachment>
+      <td class="report-registry__td">
+        <ng-container *ngIf="dict.data.hasOwnProperty(field.key); else noData">
+          <div *ngFor="let element of dict.data[field.key] | multivalued">
+            <a
+              *ngIf="loadedData && loadedData['files'] && loadedData['files'][element.value]?.fileName; else emptyFile"
+              target="_blank"
+              rel="noopener"
+              class="report-registry__link"
+              (click)="loadFile($event, element.value)"
+            >
+              <strong>{{ element.index }}</strong>
+              {{ (loadedData['files'] && loadedData['files'][element.value].fileName) || '-' }}
+            </a>
+            <ng-template #emptyFile> - </ng-template>
+          </div>
+        </ng-container>
+      </td>
+    </ng-template>
+    <ng-template #updated>
+      <td class="report-registry__td report-registry__td--width180">
+        {{ dict.updated | date : 'dd.MM.yyyy HH:mm' }}
+      </td>
+    </ng-template>
+    <ng-template #boolean>
+      <td class="report-registry__td report-registry__td--width180">
+        <ng-container *ngIf="dict.data.hasOwnProperty(field.key); else noData">
+          <div *ngFor="let element of dict.data[field.key] | multivalued">
+            <strong>{{ element.index }}</strong>
+            <ng-container *ngIf="element.value === true || element.value === false; else notSet">
+              {{ element.value ? 'Да' : 'Нет' }}
+            </ng-container>
+            <ng-template #notSet>–</ng-template>
+          </div>
+        </ng-container>
+      </td>
+    </ng-template>
+    <ng-template #defaultField>
+      <ng-container *ngIf="field.value.dictId; else notDict">
+        <td class="report-registry__td">
+          <ng-container *ngIf="loadedData && loadedData.hasOwnProperty(field.value.dictId); else noData">
+            <div *ngFor="let element of dict.data[field.key] | multivalued">
+              <strong>{{ element.index }}</strong>
+
+              {{
+                (getLoadedData(field.value.dictId, element.value) &&
+                  (getLoadedData(field.value.dictId, element.value)?.name ||
+                    getLoadedData(field.value.dictId, element.value)?.fullName)) ||
+                  '-'
+              }}
+            </div>
+          </ng-container>
+        </td>
+      </ng-container>
+    </ng-template>
+    <ng-template #notDict>
+      <td class="report-registry__td">
+        <ng-container *ngIf="dict.data.hasOwnProperty(field.key); else noData">
+          <div *ngFor="let element of dict.data[field.key] | multivalued">
+            <strong>{{ element.index }}</strong>
+            {{ element.value ?? '-' }}
+          </div>
+        </ng-container>
+      </td>
+    </ng-template>
+    }
+  </tr>
+</ng-template>
+<ng-template #tableHeader>
+  <thead>
+    @for (field of filteredColumns | keyvalue: originalOrder; track field.key) {
+    <th
+      class="th"
+      [class.th--width180]="
+        field.value.type === 'updated' || field.value.type === 'DATE' || field.value.type === 'BOOLEAN'
+      "
+    >
+      <div
+        class="th-sort__content _sortable"
+        (click)="field.value.sortField && sortedFields.includes(field.value.sortField) && sortBy(field.value.sortField)"
+      >
+        <span class="th-sort__title">{{ field.value.name }}</span>
+        <span class="th-sort__icons" *ngIf="field.value.sortField && sortedFields.includes(field.value.sortField)">
+          <span
+            class="icon icon--arrow-up"
+            *ngIf="!(sortField === field.value.sortField && sortDirection && sortDirection !== 'asc')"
+          ></span>
+          <span
+            class="icon icon--arrow-down"
+            *ngIf="!(sortField === field.value.sortField && sortDirection && sortDirection !== 'desc')"
+          ></span>
+        </span>
+      </div>
+    </th>
+    }
+  </thead>
+</ng-template>
+<ng-template #table>
+  <table
+    *ngIf="columns?.size"
+    class="dict-content-table dict-content-table--striped dict-content-table--fixed dict-content-table--hover dict-content-table--sticky-header"
+  >
+    <ng-container *ngTemplateOutlet="tableHeader"></ng-container>
+    <tbody>
+      @for(dict of tableData; track dict.id) {
+      <ng-container *ngTemplateOutlet="tableRow; context: { $implicit: dict }"></ng-container>
+      }
+    </tbody>
+  </table>
+</ng-template>

@@ -1,0 +1,81 @@
+@import '../styles/vars.scss';
+.dict-content-table {
+  display: table;
+  min-width: 100%;
+
+  th,
+  td {
+    padding: 16px 12px;
+    max-width: 200px;
+    min-width: 200px;
+    word-wrap: break-word;
+    &:first-child {
+      padding-left: 24px;
+    }
+  }
+  td {
+    vertical-align: top;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  th {
+    color: #626365;
+    font-size: 16px;
+    line-height: 20px;
+    font-weight: 500;
+    text-align: left;
+    white-space: nowrap;
+    background-color: $table-th;
+  }
+  thead,
+  tr {
+    border: 1px solid $table-tr-border;
+    background-color: transparent;
+    transition: 0.2s background-color;
+  }
+
+  &--hover {
+    tbody tr {
+      cursor: pointer;
+      &:hover {
+        outline: none;
+        background-color: $table-tr-hover;
+      }
+    }
+  }
+  &--striped {
+    tr:nth-child(2n) {
+      background-color: $charts-background-color;
+    }
+  }
+
+  &--fixed {
+    table-layout: fixed;
+  }
+
+  &--sticky-header {
+    th {
+      position: sticky;
+      top: -1px;
+      z-index: 1;
+    }
+
+    th:after {
+      content: '';
+      position: absolute;
+      left: 0;
+      width: 100%;
+      bottom: -1px;
+      border-bottom: 1px solid $border-color;
+    }
+  }
+  &__td {
+    max-width: 200px;
+    min-width: 200px;
+    word-wrap: break-word;
+    &--width180 {
+      max-width: 180px;
+      min-width: 180px;
+    }
+  }
+}

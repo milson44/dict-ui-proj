@@ -1,0 +1,13 @@
+<ul class="paginator">
+  @if (!isSlicedNumbersReachStart) {
+  <li [class.current]="currentPage === 1" (click)="onGoTo(1)">1</li>
+  <li (click)="onGoTo(this.slicedPageNumbers[0] - 1)">...</li>
+  } @for(pageNumber of slicedPageNumbers; track pageNumber) {
+  <li [class.current]="currentPage === pageNumber" (click)="onGoTo(pageNumber)">
+    {{ pageNumber }}
+  </li>
+  } @if (!isSlicedNumbersReachEnd) {
+  <li (click)="onGoTo(slicedPageNumbers[slicedPageNumbers.length - 1] + 1)">...</li>
+  <li (click)="onGoTo(totalPages)">{{ totalPages }}</li>
+  }
+</ul>
